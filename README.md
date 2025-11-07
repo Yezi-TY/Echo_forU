@@ -14,6 +14,9 @@
   <a href="https://github.com/xiaomi-research/diffrhythm2/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?&color=blue"/></a>
 </div>
 
+<a href="https://discord.gg/vUD4zgTpJa"><img src="https://img.shields.io/badge/Contact-Discord-5865f2"/></a>
+<a href="https://github.com/ASLP-lab/DiffRhythm2/blob/main/src/contact.md"><img src="https://img.shields.io/badge/Contact-WeChat-17d56b"/></a>
+
 Yuepeng Jiang, Huakang Chen, Ziqian Ning, Jixun Yao, Zerui Han, Di Wu, Meng Meng, Jian Luan, Zhonghua Fu, Lei Xie†
 
 <!-- <p align="center">
