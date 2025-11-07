@@ -32,6 +32,12 @@ DiffRhythm 2 (Chinese: 谛韵, Dì Yùn) is the next-generation open-sourced mus
     <img src="src/model1.png" width="80%"/>
 <p>
 
+## Demo Video
+
+
+https://github.com/user-attachments/assets/95bac874-82b2-4c92-950e-3489a9c03ab0
+
+
 ## 📢 News and Updates
 
 * **2025.10.30** 🚀 We released the [DiffRhythm2 paper](https://arxiv.org/pdf/2510.22950), demo code, and [model weights](https://huggingface.co/ASLP-lab/DiffRhythm2).
