@@ -95,3 +95,13 @@ DiffRhythm 2 (code and weights) is released under the [Apache License 2.0](https
 We do not make any profit from this model. Our goal is to provide a high-quality base model for music generation, fostering innovation in AI music and contributing to the advancement of human creativity. We hope that DiffRhythm 2 will serve as a foundation for further research and development in the field of AI-generated music.
 
 DiffRhythm 2 enables the creation of original music across diverse genres, supporting applications in artistic creation, education, and entertainment. While designed for positive use cases, potential risks include unintentional copyright infringement through stylistic similarities, inappropriate blending of cultural musical elements, and misuse for generating harmful content. To ensure responsible deployment, users must implement verification mechanisms to confirm musical originality, disclose AI involvement in generated works, and obtain permissions when adapting protected styles.
+
+## Citation
+```
+@article{jiang2025diffrhythm,
+  title={DiffRhythm 2: Efficient and High Fidelity Song Generation via Block Flow Matching},
+  author={Jiang, Yuepeng and Chen, Huakang and Ning, Ziqian and Yao, Jixun and Han, Zerui and Wu, Di and Meng, Meng and Luan, Jian and Fu, Zhonghua and Xie, Lei},
+  journal={arXiv preprint arXiv:2510.22950},
+  year={2025}
+}
+```
