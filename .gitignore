@@ -35,6 +35,36 @@ Build/*
 !Build/uploads/.gitkeep
 !Build/uploads/prompts/.gitkeep
 
+# 模型文件（应在环境创建时重新下载）
+# PyTorch 模型
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+# TensorFlow 模型
+*.pb
+*.h5
+*.tflite
+# ONNX 模型
+*.onnx
+# 其他模型格式
+*.model
+*.weights
+*.pkl
+*.pickle
+# 模型目录（保留配置文件，但忽略模型文件）
+backend/g2p/sources/g2p_chinese_model/*.onnx
+# Build/models 下的所有模型文件（已通过 Build/* 规则忽略，这里明确说明）
+Build/models/**/*.pth
+Build/models/**/*.pt
+Build/models/**/*.ckpt
+Build/models/**/*.safetensors
+Build/models/**/*.bin
+Build/models/**/*.onnx
+Build/models/**/*.pb
+Build/models/**/*.h5
+
 # 环境变量
 .env
 .env.local
