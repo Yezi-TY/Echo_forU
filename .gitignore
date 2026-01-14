@@ -1,5 +1,112 @@
-results
-ckpt
-ckpts
-__pycache__
-.cache
+# 依赖和环境
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+
+# pnpm
+.pnpm-store/
+pnpm-lock.yaml
+
+# 构建产物
+.next/
+dist/
+build/
+target/
+*.egg-info/
+*.so
+*.dylib
+*.dll
+
+# Build 目录（所有生成的文件）
+Build/*
+!Build/.gitkeep
+!Build/outputs/.gitkeep
+!Build/models/.gitkeep
+!Build/models/ckpt/.gitkeep
+!Build/models/mulan/.gitkeep
+!Build/cache/.gitkeep
+!Build/cache/temp/.gitkeep
+!Build/logs/.gitkeep
+!Build/uploads/.gitkeep
+!Build/uploads/prompts/.gitkeep
+
+# 模型文件（应在环境创建时重新下载）
+# PyTorch 模型
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+# TensorFlow 模型
+*.pb
+*.h5
+*.tflite
+# ONNX 模型
+*.onnx
+# 其他模型格式
+*.model
+*.weights
+*.pkl
+*.pickle
+# 模型目录（保留配置文件，但忽略模型文件）
+backend/g2p/sources/g2p_chinese_model/*.onnx
+# Build/models 下的所有模型文件（已通过 Build/* 规则忽略，这里明确说明）
+Build/models/**/*.pth
+Build/models/**/*.pt
+Build/models/**/*.ckpt
+Build/models/**/*.safetensors
+Build/models/**/*.bin
+Build/models/**/*.onnx
+Build/models/**/*.pb
+Build/models/**/*.h5
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 日志
+*.log
+logs/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+*.lcov
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# Rust
+Cargo.lock
+target/
+
+# Python
+*.egg
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+

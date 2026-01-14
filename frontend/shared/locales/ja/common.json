@@ -1,0 +1,76 @@
+{
+  "app": {
+    "name": "DiffRhythm2 音楽ジェネレーター"
+  },
+  "generation": {
+    "step1": "ステップ1: 歌詞を入力",
+    "step2": "ステップ2: スタイルを選択",
+    "step3": "ステップ3: パラメータを調整（オプション）",
+    "lyrics": "歌詞",
+    "lyricsPlaceholder": "歌詞を入力（LRC形式対応）",
+    "lyricsHelp": "LRC形式の歌詞をサポートし、時間タグやセクションマーカーを含めることができます。",
+    "stylePrompt": "スタイルプロンプト",
+    "stylePromptPlaceholder": "例：ポップ、ピアノ、ハッピー",
+    "styleAudio": "スタイル音声",
+    "uploadAudio": "音声をアップロード",
+    "generateButton": "音楽を生成",
+    "generating": "生成中...",
+    "completed": "生成完了",
+    "maxDuration": "最大時間",
+    "reset": "デフォルトに戻す",
+    "download": "ダウンロード"
+  },
+  "history": {
+    "title": "生成履歴",
+    "search": "履歴を検索...",
+    "noHistory": "生成履歴がありません"
+  },
+  "settings": {
+    "title": "設定",
+    "general": "一般",
+    "model": "モデル",
+    "hardware": "ハードウェア",
+    "language": "言語"
+  },
+  "hardware": {
+    "title": "ハードウェア情報",
+    "gpu": "GPU",
+    "cpu": "CPU",
+    "memory": "メモリ",
+    "available": "利用可能",
+    "notAvailable": "利用不可",
+    "optimization": "最適化設定",
+    "precision": "精度",
+    "batchSize": "バッチサイズ",
+    "cores": "コア",
+    "usage": "使用率",
+    "estimate": "ハードウェア負荷予測",
+    "feasible": "実行可能",
+    "notFeasible": "実行不可",
+    "estimatedVRAM": "予測VRAM",
+    "estimatedTime": "予測時間",
+    "recommendations": "推奨事項"
+  },
+  "common": {
+    "generate": "生成",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "close": "閉じる",
+    "confirm": "確認",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "warning": "警告",
+    "home": "ホーム",
+    "help": "ヘルプ",
+    "characters": "文字",
+    "downloaded": "ダウンロード済み",
+    "notDownloaded": "未ダウンロード",
+    "downloading": "ダウンロード中...",
+    "download": "ダウンロード",
+    "apply": "適用",
+    "noTasks": "タスクなし"
+  }
+}

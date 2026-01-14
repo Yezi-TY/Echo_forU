@@ -1,0 +1,76 @@
+{
+  "app": {
+    "name": "DiffRhythm2 Music Generator"
+  },
+  "generation": {
+    "step1": "Step 1: Enter Lyrics",
+    "step2": "Step 2: Choose Style",
+    "step3": "Step 3: Adjust Parameters (Optional)",
+    "lyrics": "Lyrics",
+    "lyricsPlaceholder": "Enter lyrics (supports LRC format)",
+    "lyricsHelp": "Supports LRC format lyrics, can include time tags and section markers.",
+    "stylePrompt": "Style Prompt",
+    "stylePromptPlaceholder": "e.g., Pop, Piano, Happy",
+    "styleAudio": "Style Audio",
+    "uploadAudio": "Upload Audio",
+    "generateButton": "Generate Music",
+    "generating": "Generating...",
+    "completed": "Generation Completed",
+    "maxDuration": "Max Duration",
+    "reset": "Reset to Default",
+    "download": "Download"
+  },
+  "history": {
+    "title": "Generation History",
+    "search": "Search history...",
+    "noHistory": "No generation history"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "model": "Model",
+    "hardware": "Hardware",
+    "language": "Language"
+  },
+  "hardware": {
+    "title": "Hardware Information",
+    "gpu": "GPU",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "optimization": "Optimization Settings",
+    "precision": "Precision",
+    "batchSize": "Batch Size",
+    "cores": "Cores",
+    "usage": "Usage",
+    "estimate": "Hardware Pressure Estimate",
+    "feasible": "Feasible",
+    "notFeasible": "Not Feasible",
+    "estimatedVRAM": "Estimated VRAM",
+    "estimatedTime": "Estimated Time",
+    "recommendations": "Recommendations"
+  },
+  "common": {
+    "generate": "Generate",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "home": "Home",
+    "help": "Help",
+    "characters": "characters",
+    "downloaded": "Downloaded",
+    "notDownloaded": "Not Downloaded",
+    "downloading": "Downloading...",
+    "download": "Download",
+    "apply": "Apply",
+    "noTasks": "No tasks"
+  }
+}

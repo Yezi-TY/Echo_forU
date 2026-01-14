@@ -1,103 +1,134 @@
-<p align="center">
-    <img src="src/diffrhythm2_logo.png" width="400"/>
-<p>
+# DiffRhythm2 GUI - 音乐生成图形界面
 
-<p align="center">
-   <h1>Di♪♪Rhythm 2: Efficient And High Fidelity Song Generation Via Block Flow Matching</h1>
-</p>
+基于 DiffRhythm2 的跨平台音乐生成图形界面，支持 Web 和桌面应用。
 
-<div style='display:flex; gap: 0.25rem; '>
-  <a href='https://arxiv.org/pdf/2510.22950'><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
-  <a href='https://aslp-lab.github.io/DiffRhythm2.github.io'><img src='https://img.shields.io/badge/Project-Demo-green'></a>
-  <a href='https://huggingface.co/ASLP-lab/DiffRhythm2'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow'></a>
-  <a href='https://huggingface.co/spaces/ASLP-lab/DiffRhythm2'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow'></a>
-  <a href='https://www.modelscope.cn/models/ASLPlab/DiffRhythm2'><img src='https://img.shields.io/badge/ModelScope-Models-6149ff'></a>
-  <a href="https://github.com/xiaomi-research/diffrhythm2/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue?&color=blue"/></a>
-</div>
+## 功能特性
 
-<a href="https://discord.gg/vUD4zgTpJa"><img src="https://img.shields.io/badge/Contact-Discord-5865f2"/></a>
-<a href="https://github.com/ASLP-lab/DiffRhythm2/blob/main/src/contact.md"><img src="https://img.shields.io/badge/Contact-WeChat-17d56b"/></a>
+- 🎵 基于 DiffRhythm2 的高质量音乐生成
+- 🌐 Web 界面（Next.js）
+- 💻 桌面应用（Tauri，支持 Windows/Mac/Linux）
+- 🎨 Material-UI 现代化界面设计
+- 🌍 多语言支持（中文、英文、日文）
+- ⚡ 硬件自适应优化（自动检测 GPU，优化性能）
+- 📊 实时生成进度显示
+- 📝 生成历史管理
 
-Yuepeng Jiang, Huakang Chen, Ziqian Ning, Jixun Yao, Zerui Han, Di Wu, Meng Meng, Jian Luan, Zhonghua Fu, Lei Xie†
+## 技术栈
 
-<!-- <p align="center">
-  <b>DiffRhythm 2</b> &nbsp;&nbsp;|&nbsp;&nbsp;
-  📑 <a href="https://arxiv.org/abs/2503.01183">Paper</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-  🎵 <a href="https://aslp-lab.github.io/DiffRhythm.github.io/">Demo</a>
-</p> -->
+### 前端
+- Next.js 14+ (App Router)
+- React + TypeScript
+- Material-UI (MUI) v5+
+- pnpm workspaces
+- Tauri 2.x (桌面应用)
 
-DiffRhythm 2 (Chinese: 谛韵, Dì Yùn) is the next-generation open-sourced music generation framework that advances the original DiffRhythm with a semi-autoregressive diffusion architecture. It is capable of generating full-length songs with precise lyric alignment and coherent musical structures. The name inherits the essence of DiffRhythm — “Diff” reflects its diffusion-based generative backbone, while “Rhythm” emphasizes its dedication to musicality and temporal flow. The Chinese name 谛韵 (Dì Yùn) continues this dual symbolism: “谛” (attentive listening) represents perceptual awareness, and “韵” (melodic charm) captures the expressive beauty of music.
+### 后端
+- Python FastAPI
+- PyTorch 2.7
+- DiffRhythm2 模型
 
-<p align="center">
-    <img src="src/model2.png" width="80%"/>
-<p>
+## 项目结构
 
-<p align="center">
-    <img src="src/model1.png" width="80%"/>
-<p>
+```
+Music_Gen_UI/
+├── frontend/          # 前端应用（pnpm workspaces）
+│   ├── shared/       # 共享代码
+│   ├── web/          # Next.js Web 应用
+│   └── desktop/      # Tauri 桌面应用
+├── backend/           # Python 后端服务
+├── Build/            # 生成文件目录
+└── example/          # 原始 DiffRhythm2 代码（参考）
+```
 
-## Demo Video
+## 快速开始
 
+### 环境要求
 
-https://github.com/user-attachments/assets/95bac874-82b2-4c92-950e-3489a9c03ab0
+- Node.js 18+
+- Python 3.8+
+- pnpm
+- Rust (用于 Tauri 桌面应用)
+- espeak-ng
 
+### 安装
 
-## 📢 News and Updates
+#### 方式一：使用自动设置脚本（推荐）
 
-* **2025.10.30** 🚀 We released the [DiffRhythm2 paper](https://arxiv.org/pdf/2510.22950), demo code, and [model weights](https://huggingface.co/ASLP-lab/DiffRhythm2).
+```bash
+# 克隆项目
+git clone <repository-url>
+cd Music_Gen_UI
 
-## 📋 TODOs
-- [ ] Support Colab.
-- [ ] Gradio support.
-- [ ] Song extension.
-- [ ] Instrumental music generation.
-- [x] Release code and weights.
-- [x] Release paper to Arxiv.
+# 运行设置脚本（自动安装所有依赖）
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
 
-## 🔨 Inference
+#### 方式二：手动安装
 
-Following the steps below to clone the repository and install the environment.
+```bash
+# 克隆项目
+git clone <repository-url>
+cd Music_Gen_UI
 
-```bash 
-# clone and enter the repositry
-git clone https://github.com/ASLP-lab/DiffRhythm2.git
-cd DiffRhythm2
+# 安装前端依赖
+cd frontend
+pnpm install
 
-# install the environment
-## espeak-ng
-# For Debian-like distribution (e.g. Ubuntu, Mint, etc.)
-sudo apt-get install espeak-ng
-# For RedHat-like distribution (e.g. CentOS, Fedora, etc.) 
-sudo yum install espeak-ng
-# For MacOS
-brew install espeak-ng
-# For Windows
-# Please visit https://github.com/espeak-ng/espeak-ng/releases to download .msi installer
-
-## install requirements
+# 安装后端依赖
+cd ../backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-On Linux you can now simply use the inference script:
+### 开发
+
+#### 方式一：使用启动脚本（推荐）
+
 ```bash
-# For inference using a reference WAV file
-bash inference.sh
+# 启动后端服务
+./scripts/start-backend.sh
+
+# 启动 Web 应用（新终端）
+./scripts/start-web.sh
+
+# 启动桌面应用（新终端，可选）
+./scripts/start-desktop.sh
+
+# 或同时启动 Web 和桌面应用
+./scripts/start-frontend.sh
 ```
 
-Weights will be automatically downloaded from Hugging Face upon the first run.
+#### 方式二：手动启动
 
-Example files of lyrics and reference audio can be found in `example`. 
+```bash
+# 启动后端服务
+cd backend
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m backend.main
 
+# 启动 Web 应用（新终端）
+cd frontend
+pnpm --filter web dev
 
-## 📜 License & Disclaimer
+# 启动桌面应用（新终端）
+cd frontend
+pnpm --filter desktop tauri:dev
+```
 
-DiffRhythm 2 (code and weights) is released under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). This open-source license allows you to freely use, modify, and distribute the model, as long as you include the appropriate copyright notice and disclaimer.
+## 开源项目引用
 
-We do not make any profit from this model. Our goal is to provide a high-quality base model for music generation, fostering innovation in AI music and contributing to the advancement of human creativity. We hope that DiffRhythm 2 will serve as a foundation for further research and development in the field of AI-generated music.
+本项目基于以下开源项目：
 
-DiffRhythm 2 enables the creation of original music across diverse genres, supporting applications in artistic creation, education, and entertainment. While designed for positive use cases, potential risks include unintentional copyright infringement through stylistic similarities, inappropriate blending of cultural musical elements, and misuse for generating harmful content. To ensure responsible deployment, users must implement verification mechanisms to confirm musical originality, disclose AI involvement in generated works, and obtain permissions when adapting protected styles.
+### DiffRhythm2
 
-## Citation
+- **项目**: [DiffRhythm2](https://github.com/ASLP-lab/DiffRhythm2)
+- **作者**: ASLP Lab and Xiaomi Inc.
+- **许可证**: Apache License 2.0
+- **论文**: [DiffRhythm 2: Efficient and High Fidelity Song Generation via Block Flow Matching](https://arxiv.org/pdf/2510.22950)
+
+**引用**:
 ```
 @article{diffrhythm2,
   title={DiffRhythm 2: Efficient and High Fidelity Song Generation via Block Flow Matching},
@@ -106,3 +137,29 @@ DiffRhythm 2 enables the creation of original music across diverse genres, suppo
   year={2025}
 }
 ```
+
+### 其他依赖
+
+详细的第三方开源项目列表请参见 [NOTICES.md](NOTICES.md)。
+
+## 许可证
+
+本项目采用 Apache License 2.0 许可证。详见 [LICENSE](LICENSE) 文件。
+
+## 致谢
+
+感谢以下项目和团队：
+
+- **ASLP Lab 和 Xiaomi Inc.** - 开发了 DiffRhythm2 模型
+- **Material-UI 团队** - 提供了优秀的 React UI 组件库
+- **Tauri 团队** - 提供了轻量级的桌面应用框架
+- **FastAPI 团队** - 提供了高性能的 Python Web 框架
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 联系方式
+
+如有问题或建议，请通过 GitHub Issues 联系。
+

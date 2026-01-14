@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 前端代码检查
+cd frontend
+pnpm lint-staged || exit 1
+
+# 后端代码检查
+cd ../backend
+black --check . || exit 1
+flake8 . || exit 1
+
