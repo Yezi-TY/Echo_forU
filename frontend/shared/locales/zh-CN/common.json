@@ -1,0 +1,76 @@
+{
+  "app": {
+    "name": "DiffRhythm2 音乐生成器"
+  },
+  "generation": {
+    "step1": "步骤1: 输入歌词",
+    "step2": "步骤2: 选择风格",
+    "step3": "步骤3: 调整参数（可选）",
+    "lyrics": "歌词",
+    "lyricsPlaceholder": "请输入歌词（支持 LRC 格式）",
+    "lyricsHelp": "支持 LRC 格式歌词，可以包含时间标签和段落标记。",
+    "stylePrompt": "风格提示",
+    "stylePromptPlaceholder": "例如：Pop, Piano, Happy",
+    "styleAudio": "风格音频",
+    "uploadAudio": "上传音频",
+    "generateButton": "生成音乐",
+    "generating": "生成中...",
+    "completed": "生成完成",
+    "maxDuration": "最大时长",
+    "reset": "恢复默认",
+    "download": "下载"
+  },
+  "history": {
+    "title": "生成历史",
+    "search": "搜索历史...",
+    "noHistory": "没有生成历史"
+  },
+  "settings": {
+    "title": "设置",
+    "general": "常规",
+    "model": "模型",
+    "hardware": "硬件",
+    "language": "语言"
+  },
+  "hardware": {
+    "title": "硬件信息",
+    "gpu": "GPU",
+    "cpu": "CPU",
+    "memory": "内存",
+    "available": "可用",
+    "notAvailable": "不可用",
+    "optimization": "优化设置",
+    "precision": "精度",
+    "batchSize": "批处理大小",
+    "cores": "核心",
+    "usage": "使用率",
+    "estimate": "硬件压力预估",
+    "feasible": "可行",
+    "notFeasible": "不可行",
+    "estimatedVRAM": "预估显存",
+    "estimatedTime": "预估时间",
+    "recommendations": "优化建议"
+  },
+  "common": {
+    "generate": "生成",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭",
+    "confirm": "确认",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "warning": "警告",
+    "home": "首页",
+    "help": "帮助",
+    "characters": "字符",
+    "downloaded": "已下载",
+    "notDownloaded": "未下载",
+    "downloading": "下载中...",
+    "download": "下载",
+    "apply": "应用",
+    "noTasks": "暂无任务"
+  }
+}

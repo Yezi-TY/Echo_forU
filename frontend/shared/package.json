@@ -1,0 +1,41 @@
+{
+  "name": "@music-gen-ui/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared frontend code for DiffRhythm2 GUI",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./components": "./components/index.ts",
+    "./lib": "./lib/index.ts",
+    "./lib/i18n/i18n": "./lib/i18n/i18n.ts",
+    "./hooks": "./hooks/index.ts",
+    "./types": "./types/index.ts",
+    "./theme": "./theme/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "zustand": "^4.4.7",
+    "@tanstack/react-query": "^5.17.0",
+    "axios": "^1.6.2",
+    "react-i18next": "^13.5.0",
+    "i18next": "^23.7.6",
+    "i18next-browser-languagedetector": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "typescript": "^5.3.0"
+  }
+}
+

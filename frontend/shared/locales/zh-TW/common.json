@@ -1,0 +1,76 @@
+{
+  "app": {
+    "name": "DiffRhythm2 音樂生成器"
+  },
+  "generation": {
+    "step1": "步驟1: 輸入歌詞",
+    "step2": "步驟2: 選擇風格",
+    "step3": "步驟3: 調整參數（可選）",
+    "lyrics": "歌詞",
+    "lyricsPlaceholder": "請輸入歌詞（支援 LRC 格式）",
+    "lyricsHelp": "支援 LRC 格式歌詞，可以包含時間標籤和段落標記。",
+    "stylePrompt": "風格提示",
+    "stylePromptPlaceholder": "例如：流行、鋼琴、快樂",
+    "styleAudio": "風格音訊",
+    "uploadAudio": "上傳音訊",
+    "generateButton": "生成音樂",
+    "generating": "生成中...",
+    "completed": "生成完成",
+    "maxDuration": "最大時長",
+    "reset": "恢復預設",
+    "download": "下載"
+  },
+  "history": {
+    "title": "生成歷史",
+    "search": "搜尋歷史...",
+    "noHistory": "沒有生成歷史"
+  },
+  "settings": {
+    "title": "設定",
+    "general": "一般",
+    "model": "模型",
+    "hardware": "硬體",
+    "language": "語言"
+  },
+  "hardware": {
+    "title": "硬體資訊",
+    "gpu": "GPU",
+    "cpu": "CPU",
+    "memory": "記憶體",
+    "available": "可用",
+    "notAvailable": "不可用",
+    "optimization": "最佳化設定",
+    "precision": "精度",
+    "batchSize": "批次處理大小",
+    "cores": "核心",
+    "usage": "使用率",
+    "estimate": "硬體壓力預估",
+    "feasible": "可行",
+    "notFeasible": "不可行",
+    "estimatedVRAM": "預估顯存",
+    "estimatedTime": "預估時間",
+    "recommendations": "最佳化建議"
+  },
+  "common": {
+    "generate": "生成",
+    "cancel": "取消",
+    "save": "儲存",
+    "delete": "刪除",
+    "edit": "編輯",
+    "close": "關閉",
+    "confirm": "確認",
+    "loading": "載入中...",
+    "error": "錯誤",
+    "success": "成功",
+    "warning": "警告",
+    "home": "首頁",
+    "help": "說明",
+    "characters": "字元",
+    "downloaded": "已下載",
+    "notDownloaded": "未下載",
+    "downloading": "下載中...",
+    "download": "下載",
+    "apply": "套用",
+    "noTasks": "暫無任務"
+  }
+}
