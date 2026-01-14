@@ -1,0 +1,82 @@
+# 依赖和环境
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+
+# pnpm
+.pnpm-store/
+pnpm-lock.yaml
+
+# 构建产物
+.next/
+dist/
+build/
+target/
+*.egg-info/
+*.so
+*.dylib
+*.dll
+
+# Build 目录（所有生成的文件）
+Build/*
+!Build/.gitkeep
+!Build/outputs/.gitkeep
+!Build/models/.gitkeep
+!Build/models/ckpt/.gitkeep
+!Build/models/mulan/.gitkeep
+!Build/cache/.gitkeep
+!Build/cache/temp/.gitkeep
+!Build/logs/.gitkeep
+!Build/uploads/.gitkeep
+!Build/uploads/prompts/.gitkeep
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 日志
+*.log
+logs/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+*.lcov
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# Rust
+Cargo.lock
+target/
+
+# Python
+*.egg
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
