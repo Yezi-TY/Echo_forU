@@ -20,7 +20,13 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { t } = useTranslation('common');
+  const { t, ready } = useTranslation('common');
+  const [mounted, setMounted] = React.useState(false);
+
+  // 避免 hydration 错误：只在客户端挂载后渲染可能不同的内容
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <ThemeProvider theme={lightTheme}>
@@ -29,9 +35,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {t('app.name') || 'DiffRhythm2 Music Generator'}
+              {mounted && ready ? t('app.name') : 'DiffRhythm2 Music Generator'}
             </Typography>
-            <LanguageSwitcher />
+            {mounted && <LanguageSwitcher />}
           </Toolbar>
         </AppBar>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>

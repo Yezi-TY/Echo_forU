@@ -44,17 +44,27 @@ export const AudioPreview: React.FC<AudioPreviewProps> = ({
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration);
     const handleEnded = () => setPlaying(false);
+    const handleError = (e: Event) => {
+      console.error('Audio playback error:', (audio as HTMLAudioElement).error);
+    };
+    const handleLoadedData = () => {
+      // Audio data loaded
+    };
 
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('loadeddata', handleLoadedData);
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('loadeddata', handleLoadedData);
     };
-  }, []);
+  }, [audioUrl]);
 
   const togglePlay = () => {
     const audio = audioRef.current;

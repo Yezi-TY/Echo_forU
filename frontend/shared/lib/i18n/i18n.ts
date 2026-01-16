@@ -36,8 +36,9 @@ i18n
     },
     detection: {
       // 语言检测配置
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
+      // 在服务器端渲染时禁用检测，避免 hydration 错误
+      order: typeof window !== 'undefined' ? ['localStorage', 'navigator', 'htmlTag'] : ['htmlTag'],
+      caches: typeof window !== 'undefined' ? ['localStorage'] : [],
       lookupLocalStorage: 'i18nextLng',
     },
   });

@@ -10,7 +10,7 @@ import {
   Chip,
   Grid,
 } from '@mui/material';
-import { Memory, Cpu, Storage } from '@mui/icons-material';
+import { Memory, Computer, Storage } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 interface HardwareInfo {
@@ -86,7 +86,7 @@ export const HardwareInfoCard: React.FC<HardwareInfoCardProps> = ({
           {/* CPU 信息 */}
           <Grid item xs={12} md={4}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Cpu sx={{ mr: 1 }} />
+              <Computer sx={{ mr: 1 }} />
               <Typography variant="subtitle2">
                 {t('hardware.cpu')}
               </Typography>

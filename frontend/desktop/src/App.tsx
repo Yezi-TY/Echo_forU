@@ -15,13 +15,54 @@ import { Box, Card, CardContent } from "@mui/material";
 import { api, wsClient, useBackendConnection } from "@music-gen-ui/shared/lib";
 import "@music-gen-ui/shared/lib/i18n/i18n"; // Initialize i18n
 
+const STORAGE_KEY = 'music-gen-ui-form-state';
+
 function App() {
+  // 使用默认值初始化
   const [lyrics, setLyrics] = useState("");
   const [stylePrompt, setStylePrompt] = useState("");
   const [styleAudio, setStyleAudio] = useState<File | null>(null);
   const [precision, setPrecision] = useState<"fp32" | "fp16" | "int8">("fp16");
   const [batchSize, setBatchSize] = useState(1);
   const [maxDuration, setMaxDuration] = useState(300);
+  const [mounted, setMounted] = useState(false);
+
+  // 在客户端挂载后从 localStorage 恢复状态
+  useEffect(() => {
+    setMounted(true);
+    
+    // 从 localStorage 恢复状态
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.lyrics) setLyrics(parsed.lyrics);
+        if (parsed.stylePrompt) setStylePrompt(parsed.stylePrompt);
+        if (parsed.precision) setPrecision(parsed.precision);
+        if (parsed.batchSize) setBatchSize(parsed.batchSize);
+        if (parsed.maxDuration) setMaxDuration(parsed.maxDuration);
+      }
+    } catch (error) {
+      console.error('Failed to load saved state:', error);
+    }
+  }, []);
+
+  // 保存状态到 localStorage（只在客户端挂载后保存）
+  useEffect(() => {
+    if (mounted) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          lyrics,
+          stylePrompt,
+          precision,
+          batchSize,
+          maxDuration,
+        }));
+      } catch (error) {
+        console.error('Failed to save state:', error);
+      }
+    }
+  }, [mounted, lyrics, stylePrompt, precision, batchSize, maxDuration]);
 
   const [generating, setGenerating] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -123,7 +164,12 @@ function App() {
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <LyricsEditor value={lyrics} onChange={setLyrics} />
+          <LyricsEditor
+            value={lyrics}
+            onChange={(value) => {
+              setLyrics(value);
+            }}
+          />
         </CardContent>
       </Card>
 
@@ -131,7 +177,9 @@ function App() {
         <CardContent>
           <StylePromptInput
             textValue={stylePrompt}
-            onTextChange={setStylePrompt}
+            onTextChange={(value) => {
+              setStylePrompt(value);
+            }}
             audioFile={styleAudio}
             onAudioChange={setStyleAudio}
           />
@@ -142,11 +190,17 @@ function App() {
         <CardContent>
           <GenerationParams
             precision={precision}
-            onPrecisionChange={setPrecision}
+            onPrecisionChange={(value) => {
+              setPrecision(value);
+            }}
             batchSize={batchSize}
-            onBatchSizeChange={setBatchSize}
+            onBatchSizeChange={(value) => {
+              setBatchSize(value);
+            }}
             maxDuration={maxDuration}
-            onMaxDurationChange={setMaxDuration}
+            onMaxDurationChange={(value) => {
+              setMaxDuration(value);
+            }}
           />
         </CardContent>
       </Card>

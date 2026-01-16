@@ -14,9 +14,19 @@ const languages = [
 
 export const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
+  const [mounted, setMounted] = React.useState(false);
+  const [currentLanguage, setCurrentLanguage] = React.useState('zh-CN');
+
+  // 避免 hydration 错误：只在客户端挂载后使用 i18n.language
+  React.useEffect(() => {
+    setMounted(true);
+    setCurrentLanguage(i18n.language);
+  }, [i18n.language]);
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    i18n.changeLanguage(event.target.value);
+    const newLang = event.target.value;
+    setCurrentLanguage(newLang);
+    i18n.changeLanguage(newLang);
   };
 
   return (
@@ -25,7 +35,7 @@ export const LanguageSwitcher: React.FC = () => {
       <Select
         labelId="language-select-label"
         id="language-select"
-        value={i18n.language}
+        value={mounted ? currentLanguage : 'zh-CN'}
         label="Language"
         onChange={handleChange}
       >
