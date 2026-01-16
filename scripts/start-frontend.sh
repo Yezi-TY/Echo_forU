@@ -1,8 +1,15 @@
 #!/bin/bash
 # 同时启动 Web 和桌面应用（开发模式）
 
-cd "$(dirname "$0")/.."
-PROJECT_ROOT="$(pwd)"
+# 获取脚本的绝对路径
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# 切换到项目根目录
+cd "$PROJECT_ROOT" || {
+    echo "Error: Cannot change to project root directory: $PROJECT_ROOT"
+    exit 1
+}
 
 echo "🎨 启动前端应用（Web + Desktop）..."
 echo "📁 项目根目录: $PROJECT_ROOT"

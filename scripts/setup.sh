@@ -39,6 +39,46 @@ else
     echo "✅ uv 已安装: $(uv --version)"
 fi
 
+# 检查并安装 espeak (phonemizer 依赖)
+echo ""
+echo "🔊 检查 espeak (phonemizer 依赖)..."
+if ! command -v espeak &> /dev/null; then
+    echo "📦 安装 espeak..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        if command -v brew &> /dev/null; then
+            brew install espeak
+        else
+            echo "⚠️  请先安装 Homebrew，然后运行: brew install espeak"
+            echo "   或访问: https://brew.sh/"
+        fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y espeak espeak-data libespeak1 libespeak-dev
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y espeak espeak-devel
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -S --noconfirm espeak
+        else
+            echo "⚠️  请手动安装 espeak 包"
+        fi
+    else
+        echo "⚠️  无法自动检测系统类型，请手动安装 espeak"
+    fi
+    
+    if ! command -v espeak &> /dev/null; then
+        echo "❌ espeak 安装失败，请手动安装"
+        echo "   macOS: brew install espeak"
+        echo "   Ubuntu/Debian: sudo apt-get install espeak espeak-data libespeak1 libespeak-dev"
+        echo "   CentOS/RHEL: sudo yum install espeak espeak-devel"
+        echo "   Arch: sudo pacman -S espeak"
+        exit 1
+    fi
+else
+    echo "✅ espeak 已安装: $(espeak --version 2>&1 | head -1)"
+fi
+
 # 使用 uv 安装 Python 3.12
 echo ""
 echo "🐍 使用 uv 安装 Python 3.12..."

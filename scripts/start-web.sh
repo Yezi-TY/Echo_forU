@@ -1,8 +1,15 @@
 #!/bin/bash
 # 启动 Web 前端（Next.js）脚本
 
-cd "$(dirname "$0")/.."
-PROJECT_ROOT="$(pwd)"
+# 获取脚本的绝对路径
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# 切换到项目根目录
+cd "$PROJECT_ROOT" || {
+    echo "Error: Cannot change to project root directory: $PROJECT_ROOT"
+    exit 1
+}
 
 echo "🌐 启动 Web 前端..."
 echo "📁 项目根目录: $PROJECT_ROOT"
