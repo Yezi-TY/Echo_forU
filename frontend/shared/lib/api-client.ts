@@ -20,6 +20,10 @@ class ApiClient {
     // 请求拦截器
     this.client.interceptors.request.use(
       (config) => {
+        // 如果是 FormData，删除 Content-Type 让浏览器自动设置（包括 boundary）
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type'];
+        }
         // 可以在这里添加认证 token 等
         return config;
       },
@@ -142,7 +146,7 @@ export const api = {
     apiClient.get('/api/tasks', { params: { status } }),
   cancelTask: (taskId: string) => apiClient.post(`/api/tasks/${taskId}/cancel`),
 
-  // 生成
+  // 生成 - 等待响应获取 task_id，然后通过轮询查询进度
   generateMusic: (data: {
     song_name: string;
     lyrics: string;
@@ -150,7 +154,7 @@ export const api = {
     style_audio?: File;
     precision?: string;
     batch_size?: number;
-  }) => {
+  }): Promise<{ task_id: string }> => {
     const formData = new FormData();
     formData.append('song_name', data.song_name);
     formData.append('lyrics', data.lyrics);
@@ -163,10 +167,12 @@ export const api = {
     formData.append('precision', data.precision || 'fp16');
     formData.append('batch_size', String(data.batch_size || 1));
 
-    return apiClient.post('/api/generate', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    return apiClient.post('/api/generate', formData, { timeout: 60000 }).then((response) => {
+      if (!response || !response.task_id) {
+        throw new Error(`Invalid response: ${JSON.stringify(response)}`);
+      }
+      
+      return response;
     });
   },
 

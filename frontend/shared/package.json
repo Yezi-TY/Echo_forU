@@ -9,6 +9,8 @@
     ".": "./index.ts",
     "./components": "./components/index.ts",
     "./lib": "./lib/index.ts",
+    "./lib/task-poller": "./lib/task-poller.ts",
+    "./lib/sse-client": "./lib/sse-client.ts",
     "./lib/i18n/i18n": "./lib/i18n/i18n.ts",
     "./hooks": "./hooks/index.ts",
     "./types": "./types/index.ts",
