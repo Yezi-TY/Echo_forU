@@ -6,6 +6,26 @@
 import re
 import os
 from typing import List, Pattern, Union
+
+# 在导入 phonemizer 之前，确保 espeak 在 PATH 中
+espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+current_path = os.environ.get("PATH", "")
+for path in espeak_paths:
+    if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
+        os.environ["PATH"] = f"{path}:{current_path}"
+        break
+
+# 设置 espeak 共享库路径（phonemizer 需要）
+espeak_lib_paths = [
+    "/opt/homebrew/lib/libespeak.dylib",
+    "/opt/homebrew/lib/libespeak.1.dylib",
+    "/usr/local/lib/libespeak.dylib",
+]
+for lib_path in espeak_lib_paths:
+    if os.path.exists(lib_path) and "PHONEMIZER_ESPEAK_LIBRARY" not in os.environ:
+        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
+        break
+
 from phonemizer.utils import list2str, str2list
 from phonemizer.backend import EspeakBackend
 from phonemizer.backend.espeak.language_switch import LanguageSwitch
@@ -29,15 +49,22 @@ class TextTokenizer:
         words_mismatch: WordMismatch = "ignore",
     ) -> None:
         self.preserve_punctuation_marks = ",.?!;:'…"
-        self.backend = EspeakBackend(
-            language,
-            punctuation_marks=self.preserve_punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
-            with_stress=with_stress,
-            tie=tie,
-            language_switch=language_switch,
-            words_mismatch=words_mismatch,
-        )
+        try:
+            self.backend = EspeakBackend(
+                language,
+                punctuation_marks=self.preserve_punctuation_marks,
+                preserve_punctuation=preserve_punctuation,
+                with_stress=with_stress,
+                tie=tie,
+                language_switch=language_switch,
+                words_mismatch=words_mismatch,
+            )
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Failed to initialize EspeakBackend: {e}. "
+                "Please install espeak: brew install espeak (macOS) or apt-get install espeak (Linux). "
+                "Also ensure espeak is in your PATH."
+            ) from e
 
         self.separator = separator
 

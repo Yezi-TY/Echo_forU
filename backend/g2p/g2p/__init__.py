@@ -15,7 +15,7 @@ LangSegment = LS()
 class PhonemeBpeTokenizer:
     def __init__(self, vacab_path="./f5_tts/g2p/g2p/vocab.json"):
         self.lang2backend = {
-            "zh": "cmn",
+            "zh": "zh",  # espeak 使用 "zh" 而不是 "cmn"
             "ja": "ja",
             "en": "en-us",
             "fr": "fr-fr",

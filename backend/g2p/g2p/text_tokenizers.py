@@ -29,15 +29,21 @@ class TextTokenizer:
         words_mismatch: WordMismatch = "ignore",
     ) -> None:
         self.preserve_punctuation_marks = ",.?!;:'…"
-        self.backend = EspeakBackend(
-            language,
-            punctuation_marks=self.preserve_punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
-            with_stress=with_stress,
-            tie=tie,
-            language_switch=language_switch,
-            words_mismatch=words_mismatch,
-        )
+        try:
+            self.backend = EspeakBackend(
+                language,
+                punctuation_marks=self.preserve_punctuation_marks,
+                preserve_punctuation=preserve_punctuation,
+                with_stress=with_stress,
+                tie=tie,
+                language_switch=language_switch,
+                words_mismatch=words_mismatch,
+            )
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Failed to initialize EspeakBackend: {e}. "
+                "Please install espeak: brew install espeak (macOS) or apt-get install espeak (Linux)"
+            ) from e
 
         self.separator = separator
 
