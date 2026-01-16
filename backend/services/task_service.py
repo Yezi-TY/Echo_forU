@@ -8,6 +8,8 @@ from typing import Dict, Any, Callable, Coroutine, Optional, List
 from enum import Enum
 from datetime import datetime
 
+from backend.utils.path_utils import get_debug_log_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +35,20 @@ class Task:
         self.error: Optional[str] = None
         self.created_at = datetime.now().isoformat()
         self.updated_at = datetime.now().isoformat()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典"""
+        return {
+            "id": self.id,
+            "type": self.type,
+            "status": self.status.value,
+            "progress": self.progress,
+            "message": self.message,
+            "result": self.result,
+            "error": self.error,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
 
 
 class TaskService:
@@ -171,6 +187,11 @@ class TaskService:
             if message:
                 task.message = message
             task.updated_at = datetime.now().isoformat()
+            
+            # 输出进度到 stdout
+            progress_percent = int(progress * 100)
+            status_msg = f"[{task_id[:8]}] {progress_percent}% - {message or 'Processing...'}"
+            print(status_msg, flush=True)
     
     def create_task(self, task_type: str, params: Dict[str, Any]) -> str:
         """创建任务（同步方法，返回 task_id）"""
@@ -193,8 +214,11 @@ class TaskService:
                     base_dir = Path(__file__).parent.parent.parent / "Build"
                     inference_service = get_inference_service(base_dir)
                     
-                    # 创建进度回调函数
+                    # 创建进度回调函数，同时检查取消状态
                     def progress_callback(progress: float, message: str):
+                        # 检查任务是否已被取消
+                        if task_id in self.tasks and self.tasks[task_id].status == TaskStatus.CANCELLED:
+                            raise asyncio.CancelledError("Task cancelled by user")
                         self.update_task_progress(task_id, progress, message)
                     
                     result = await inference_service.inference(
@@ -205,7 +229,8 @@ class TaskService:
                         precision=params.get("precision", "fp16"),
                         batch_size=params.get("batch_size", 1),
                         max_duration=params.get("max_duration", 300),
-                        progress_callback=progress_callback
+                        progress_callback=progress_callback,
+                        task_id=task_id,  # 传递 task_id 以便检查取消状态
                     )
                     
                     if result.get("success"):
@@ -241,8 +266,16 @@ class TaskService:
                 logger.error(f"Task {task_id} failed: {e}", exc_info=True)
                 raise
         
-        # 立即执行异步任务
-        running_task = asyncio.create_task(task_executor())
+        # 在 FastAPI 的异步环境中，直接创建任务
+        # FastAPI 运行在 uvicorn 的事件循环中，所以可以直接使用 create_task
+        try:
+            loop = asyncio.get_running_loop()
+            running_task = loop.create_task(task_executor())
+        except RuntimeError:
+            # 如果没有运行中的事件循环，使用 get_event_loop
+            loop = asyncio.get_event_loop()
+            running_task = loop.create_task(task_executor())
+        
         self.running_tasks[task_id] = running_task
         
         # 等待任务完成或失败时清理
