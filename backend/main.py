@@ -4,6 +4,26 @@ DiffRhythm2 GUI Backend - FastAPI Server
 import os
 import logging
 from pathlib import Path
+
+# 在导入其他模块之前，确保 espeak 在 PATH 中（用于 phonemizer）
+espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+current_path = os.environ.get("PATH", "")
+for path in espeak_paths:
+    if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
+        os.environ["PATH"] = f"{path}:{current_path}"
+        break
+
+# 设置 espeak 共享库路径（phonemizer 需要）
+espeak_lib_paths = [
+    "/opt/homebrew/lib/libespeak.dylib",
+    "/opt/homebrew/lib/libespeak.1.dylib",
+    "/usr/local/lib/libespeak.dylib",
+]
+for lib_path in espeak_lib_paths:
+    if os.path.exists(lib_path):
+        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
+        break
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -57,10 +77,26 @@ app.add_middleware(
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    """Log all requests"""
-    logger.info(f"{request.method} {request.url.path}")
-    response = await call_next(request)
-    return response
+    """Log all requests (excluding health checks)"""
+    import time
+    start_time = time.time()
+    
+    # 跳过 health 检查的日志记录以减少输出
+    if request.url.path != "/api/health":
+        logger.info(f"{request.method} {request.url.path} - Request received")
+    
+    try:
+        response = await call_next(request)
+        elapsed = time.time() - start_time
+        
+        if request.url.path != "/api/health":
+            logger.info(f"{request.method} {request.url.path} - Completed in {elapsed:.2f}s")
+        
+        return response
+    except Exception as e:
+        elapsed = time.time() - start_time
+        logger.error(f"{request.method} {request.url.path} - Error after {elapsed:.2f}s: {e}", exc_info=True)
+        raise
 
 
 @app.exception_handler(Exception)
@@ -152,8 +188,20 @@ async def websocket_progress(websocket: WebSocket, task_id: str):
 
 
 if __name__ == "__main__":
+    import signal
+    import sys
+    
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 8000))
+    
+    # 确保 Ctrl+C 能正确终止进程
+    def signal_handler(sig, frame):
+        print("\n🛑 正在停止服务...")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     # 使用模块路径，从项目根目录运行时可以找到 backend.main
     uvicorn.run(
         "backend.main:app",
