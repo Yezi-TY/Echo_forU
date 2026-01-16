@@ -98,10 +98,12 @@ class CFM(nn.Module):
         # create cache
         kv_cache = BlockFlowMatchingCache(text_lengths=text_lens, num_history_block=self.num_history_block)
         cfg_kv_cache = BlockFlowMatchingCache(text_lengths=text_lens, num_history_block=self.num_history_block)
-        cache_time = torch.tensor([1], device=device)[:, None].repeat(batch, self.block_size).half()
+        # 确保时间张量的 dtype 与模型参数一致
+        model_dtype = next(self.transformer.parameters()).dtype
+        cache_time = torch.tensor([1], device=device, dtype=model_dtype)[:, None].repeat(batch, self.block_size)
         
         # generate text cache
-        text_time = torch.tensor([-1], device=device)[:, None].repeat(batch, text_emb.shape[1]).half()
+        text_time = torch.tensor([-1], device=device, dtype=model_dtype)[:, None].repeat(batch, text_emb.shape[1])
         text_position_ids = torch.arange(0, text_emb.shape[1], device=device)[None, :].repeat(batch, 1)
         text_attn_mask = torch.ones(batch, 1, text_emb.shape[1], text_emb.shape[1], device=device).bool()
         
