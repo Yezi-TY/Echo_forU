@@ -1,4 +1,4 @@
-﻿﻿﻿# 启动后端服务脚本 (PowerShell)
+﻿# 启动后端服务脚本 (PowerShell)
 
 $ErrorActionPreference = "Stop"
 
