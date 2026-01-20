@@ -1,4 +1,4 @@
-# DiffRhythm2 GUI 项目初始化设置脚本 (PowerShell)
+﻿# DiffRhythm2 GUI 项目初始化设置脚本 (PowerShell)
 # 所有环境隔离在项目目录内
 
 $ErrorActionPreference = "Stop"
