@@ -1,4 +1,4 @@
-﻿﻿# 启动桌面应用（Tauri）脚本 - PowerShell
+﻿﻿﻿﻿# 启动桌面应用（Tauri）脚本 - PowerShell
 
 $ErrorActionPreference = "Stop"
 

@@ -1,4 +1,4 @@
-﻿﻿# DiffRhythm2 GUI 项目初始化设置脚本 (PowerShell)
+# DiffRhythm2 GUI 项目初始化设置脚本 (PowerShell)
 # 所有环境隔离在项目目录内
 
 $ErrorActionPreference = "Stop"
@@ -32,8 +32,19 @@ Write-Host "项目根目录: $PROJECT_ROOT" -ForegroundColor Cyan
 Write-Host ""
 
 # 检查 Node.js
+Write-Host "检查 Node.js..." -ForegroundColor Yellow
 try {
-    $nodeVersion = node --version
+    # 先检查命令是否存在
+    $nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $nodeCmd) {
+        Write-Host "Node.js 未安装，请先安装 Node.js 18+" -ForegroundColor Red
+        Write-Host "访问: https://nodejs.org/" -ForegroundColor Yellow
+        exit 1
+    }
+    
+    # 直接执行命令（如果卡住，用户可以看到）
+    Write-Host "  执行: node --version" -ForegroundColor Gray
+    $nodeVersion = node --version 2>&1
     if ($LASTEXITCODE -ne 0) { throw "Node.js 未安装" }
     $nodeMajorVersion = [int]($nodeVersion -replace 'v(\d+)\..*', '$1')
     if ($nodeMajorVersion -lt 18) {
@@ -41,54 +52,112 @@ try {
         Write-Host "访问: https://nodejs.org/" -ForegroundColor Yellow
         exit 1
     }
-    Write-Host "Node.js 版本: $nodeVersion" -ForegroundColor Green
+    Write-Host "  Node.js 版本: $nodeVersion" -ForegroundColor Green
 } catch {
-    Write-Host "Node.js 未安装，请先安装 Node.js 18+" -ForegroundColor Red
-    Write-Host "访问: https://nodejs.org/" -ForegroundColor Yellow
+    Write-Host "Node.js 检查失败: $_" -ForegroundColor Red
+    Write-Host "请先安装 Node.js 18+: https://nodejs.org/" -ForegroundColor Yellow
     exit 1
 }
 
 # 检查并安装 uv
+Write-Host "检查 uv..." -ForegroundColor Yellow
 try {
-    $uvVersion = uv --version
-    if ($LASTEXITCODE -ne 0) { throw "uv 未安装" }
-    Write-Host "uv 已安装: $uvVersion" -ForegroundColor Green
-} catch {
-    Write-Host "安装 uv (快速 Python 包管理器)..." -ForegroundColor Yellow
-    $uvInstallScript = "powershell -ExecutionPolicy Bypass -c `"irm https://astral.sh/uv/install.ps1 | iex`""
-    Invoke-Expression $uvInstallScript
-    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
-    try {
-        $uvVersion = uv --version
-        if ($LASTEXITCODE -ne 0) { throw "uv 安装失败" }
-        Write-Host "uv 安装成功: $uvVersion" -ForegroundColor Green
-    } catch {
-        Write-Host "uv 安装失败，请手动安装: https://github.com/astral-sh/uv" -ForegroundColor Red
-        Write-Host "或运行: powershell -ExecutionPolicy Bypass -c `"irm https://astral.sh/uv/install.ps1 | iex`"" -ForegroundColor Yellow
-        exit 1
+    # 先检查命令是否存在
+    $uvCmd = Get-Command uv -ErrorAction SilentlyContinue
+    if (-not $uvCmd) {
+        Write-Host "uv 未安装，开始安装..." -ForegroundColor Yellow
+        Write-Host "  安装 uv (快速 Python 包管理器)..." -ForegroundColor Gray
+        Write-Host "  这可能需要几分钟时间，请耐心等待..." -ForegroundColor Cyan
+        
+        # 直接执行安装命令（如果卡住，用户可以看到进度）
+        powershell -ExecutionPolicy Bypass -c "irm https://astral.sh/uv/install.ps1 | iex"
+        
+        # 更新 PATH
+        $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+        
+        # 重新检查 uv
+        Start-Sleep -Seconds 2
+        $uvCmd = Get-Command uv -ErrorAction SilentlyContinue
+        if (-not $uvCmd) {
+            Write-Host "uv 安装后未找到，请手动安装: https://github.com/astral-sh/uv" -ForegroundColor Red
+            Write-Host '或运行: powershell -ExecutionPolicy Bypass -c "irm https://astral.sh/uv/install.ps1 | iex"' -ForegroundColor Yellow
+            exit 1
+        }
     }
+    
+    # 检查 uv 版本
+    Write-Host "  执行: uv --version" -ForegroundColor Gray
+    $uvVersion = uv --version 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "uv 未安装" }
+    Write-Host "  uv 已安装: $uvVersion" -ForegroundColor Green
+} catch {
+    Write-Host "uv 检查失败: $_" -ForegroundColor Red
+    Write-Host "请手动安装 uv: https://github.com/astral-sh/uv" -ForegroundColor Yellow
+    Write-Host '或运行: powershell -ExecutionPolicy Bypass -c "irm https://astral.sh/uv/install.ps1 | iex"' -ForegroundColor Yellow
+    exit 1
 }
 
 # 使用 uv 安装 Python 3.12
 Write-Host ""
-Write-Host "使用 uv 安装 Python 3.12..." -ForegroundColor Yellow
-uv python install 3.12
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Python 3.12 安装失败，尝试使用系统 Python 3.12..." -ForegroundColor Yellow
-    try {
-        $pythonVersion = python3.12 --version
+Write-Host "检查 Python 3.12..." -ForegroundColor Yellow
+
+# 先检查是否已安装
+$pythonInstalled = $false
+try {
+    $pythonCmd = Get-Command python3.12 -ErrorAction SilentlyContinue
+    if ($pythonCmd) {
+        Write-Host "  执行: python3.12 --version" -ForegroundColor Gray
+        $pythonVersion = python3.12 --version 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "使用系统 Python 3.12: $pythonVersion" -ForegroundColor Green
+            Write-Host "  系统 Python 3.12 已存在: $pythonVersion" -ForegroundColor Green
+            $pythonInstalled = $true
+        }
+    }
+} catch { }
+
+if (-not $pythonInstalled) {
+    Write-Host "使用 uv 安装 Python 3.12..." -ForegroundColor Yellow
+    Write-Host "  这可能需要几分钟时间，请耐心等待..." -ForegroundColor Cyan
+    Write-Host "  执行: uv python install 3.12" -ForegroundColor Gray
+    
+    # 直接执行安装命令（如果卡住，用户可以看到进度）
+    uv python install 3.12
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  Python 3.12 安装成功" -ForegroundColor Green
+        $pythonInstalled = $true
+    } else {
+        Write-Host "  uv 安装 Python 失败，尝试使用系统 Python 3.12..." -ForegroundColor Yellow
+    }
+}
+
+if (-not $pythonInstalled) {
+    Write-Host "尝试使用系统 Python 3.12..." -ForegroundColor Yellow
+    try {
+        $pythonCmd = Get-Command python3.12 -ErrorAction SilentlyContinue
+        if (-not $pythonCmd) {
+            $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($pythonCmd) {
+                Write-Host "  执行: python --version" -ForegroundColor Gray
+                $pythonVersion = python --version 2>&1
+                if ($pythonVersion -match "3\.12") {
+                    Write-Host "  使用系统 Python: $pythonVersion" -ForegroundColor Green
+                    $pythonInstalled = $true
+                }
+            }
         } else {
-            throw "Python 3.12 未找到"
+            Write-Host "  执行: python3.12 --version" -ForegroundColor Gray
+            $pythonVersion = python3.12 --version 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  使用系统 Python 3.12: $pythonVersion" -ForegroundColor Green
+                $pythonInstalled = $true
+            }
         }
     } catch {
-        Write-Host "无法找到或安装 Python 3.12" -ForegroundColor Red
+        Write-Host "无法找到 Python 3.12" -ForegroundColor Red
         Write-Host "请手动安装 Python 3.12: https://www.python.org/downloads/" -ForegroundColor Yellow
         exit 1
     }
-} else {
-    Write-Host "Python 3.12 已安装" -ForegroundColor Green
 }
 
 # 检查并安装 pnpm
@@ -127,8 +196,30 @@ Write-Host ""
 Write-Host "设置 Python 3.12 虚拟环境（backend/.venv）..." -ForegroundColor Yellow
 Set-Location "$PROJECT_ROOT\backend"
 
-if (Test-Path "venv") { Remove-Item -Recurse -Force "venv" }
-if (Test-Path ".venv") { Remove-Item -Recurse -Force ".venv" }
+function Remove-DirSafe {
+    param([Parameter(Mandatory=$true)][string]$PathToRemove)
+    if (-not (Test-Path $PathToRemove)) { return }
+    Write-Host "清理目录: $PathToRemove" -ForegroundColor Yellow
+    try {
+        Remove-Item -LiteralPath $PathToRemove -Recurse -Force -ErrorAction Stop
+        return
+    } catch {
+        Write-Host "直接删除失败（可能有文件被占用），尝试改名后继续: $PathToRemove" -ForegroundColor Yellow
+        try {
+            $suffix = (Get-Date -Format "yyyyMMdd_HHmmss")
+            $newName = "${PathToRemove}.old_${suffix}"
+            Rename-Item -LiteralPath $PathToRemove -NewName $newName -ErrorAction Stop
+            Write-Host "已改名为: $newName（你可以稍后手动删除）" -ForegroundColor Yellow
+        } catch {
+            Write-Host "仍无法处理目录: $PathToRemove" -ForegroundColor Red
+            Write-Host "请关闭占用该目录的进程（例如正在运行的后端/IDE/杀毒扫描）后重试。" -ForegroundColor Yellow
+            throw
+        }
+    }
+}
+
+Remove-DirSafe "venv"
+Remove-DirSafe ".venv"
 
 $VENV_PATH = ".venv"
 uv venv --python 3.12 $VENV_PATH
