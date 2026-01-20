@@ -46,8 +46,10 @@ class CNENTokenizer:
             project_root = Path(__file__).parent.parent.parent
             vocab_path = project_root / "backend" / "g2p" / "g2p" / "vocab.json"
         
-        with open(vocab_path, 'r') as file:
-            self.phone2id: dict = json.load(file)['vocab']
+        # Windows 上默认编码可能是 cp936/gbk，vocab.json 含 IPA 字符会解码失败；
+        # 这里显式用 UTF-8（兼容 UTF-8 BOM 用 utf-8-sig）
+        with open(vocab_path, "r", encoding="utf-8-sig") as file:
+            self.phone2id: dict = json.load(file)["vocab"]
         self.id2phone = {v: k for (k, v) in self.phone2id.items()}
         
         from backend.g2p.g2p_generation import chn_eng_g2p
@@ -64,6 +66,21 @@ class CNENTokenizer:
 
 def prepare_models(repo_id: str, ckpt_dir: Path, device: torch.device) -> Tuple:
     """准备所有模型（diffrhythm2, mulan, tokenizer, decoder）"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # 记录设备信息
+    device_str = str(device)
+    logger.info(f"[GPU] Preparing models on device: {device_str}")
+    if device.type == 'cuda':
+        if torch.cuda.is_available():
+            logger.info(f"[OK] CUDA available: {torch.cuda.get_device_name(0)}")
+            logger.info(f"   GPU Memory: {torch.cuda.get_device_properties(0).total_memory / (1024**3):.2f} GB")
+        else:
+            logger.warning("[WARN] CUDA device requested but not available, falling back to CPU")
+            device = torch.device('cpu')
+            device_str = 'cpu'
+    
     # 下载并加载 DiffRhythm2 模型
     diffrhythm2_ckpt_path = hf_hub_download(
         repo_id=repo_id,
@@ -88,21 +105,36 @@ def prepare_models(repo_id: str, ckpt_dir: Path, device: torch.device) -> Tuple:
         block_size=model_config['block_size'],
     )
     
+    # 先移动到目标设备，再加载权重（更高效）
     diffrhythm2 = diffrhythm2.to(device)
+    logger.info(f"[LOAD] Loading DiffRhythm2 weights to {device_str}...")
     if diffrhythm2_ckpt_path.endswith('.safetensors'):
         from safetensors.torch import load_file
+        # safetensors 需要先加载到 CPU，然后移动到设备
         ckpt = load_file(diffrhythm2_ckpt_path)
+        # 将权重移动到目标设备
+        ckpt = {k: v.to(device) for k, v in ckpt.items()}
     else:
-        ckpt = torch.load(diffrhythm2_ckpt_path, map_location='cpu')
+        # 直接加载到目标设备
+        ckpt = torch.load(diffrhythm2_ckpt_path, map_location=device)
     diffrhythm2.load_state_dict(ckpt)
+    # 验证模型在正确的设备上
+    actual_device = next(diffrhythm2.parameters()).device
+    logger.info(f"[OK] DiffRhythm2 loaded on {actual_device}")
+    if device.type == 'cuda' and actual_device.type != 'cuda':
+        logger.warning(f"[WARN] Model is on {actual_device} but expected {device}")
     
     # 加载 Mulan
+    logger.info(f"[LOAD] Loading MuQ-MuLan to {device_str}...")
     mulan = MuQMuLan.from_pretrained("OpenMuQ/MuQ-MuLan-large", cache_dir=str(ckpt_dir)).to(device)
+    actual_device = next(mulan.parameters()).device
+    logger.info(f"[OK] MuQ-MuLan loaded on {actual_device}")
     
     # 加载分词器
     lrc_tokenizer = CNENTokenizer()
     
     # 加载解码器
+    logger.info(f"[LOAD] Loading decoder to {device_str}...")
     decoder_ckpt_path = hf_hub_download(
         repo_id=repo_id,
         filename="decoder.bin",
@@ -115,8 +147,29 @@ def prepare_models(repo_id: str, ckpt_dir: Path, device: torch.device) -> Tuple:
         local_dir=str(ckpt_dir),
         local_files_only=False,
     )
+    # 创建解码器（权重会先加载到 CPU）
     decoder = Generator(decoder_config_path, decoder_ckpt_path)
+    # 移动到目标设备（这会移动所有权重）
     decoder = decoder.to(device)
+    # 确保解码器内部模型也在正确的设备上
+    if hasattr(decoder, 'decoder'):
+        decoder.decoder = decoder.decoder.to(device)
+    actual_device = next(decoder.parameters()).device
+    logger.info(f"[OK] Decoder loaded on {actual_device}")
+    
+    # 最终验证所有模型都在正确的设备上
+    models = [("DiffRhythm2", diffrhythm2), ("MuQ-MuLan", mulan), ("Decoder", decoder)]
+    all_on_correct_device = True
+    for name, model in models:
+        model_device = next(model.parameters()).device
+        if model_device != device:
+            logger.warning(f"[WARN] {name} is on {model_device} but expected {device}")
+            all_on_correct_device = False
+    
+    if all_on_correct_device:
+        logger.info(f"[OK] All models successfully loaded on {device_str}")
+    else:
+        logger.warning("[WARN] Some models may not be on the expected device")
     
     return diffrhythm2, mulan, lrc_tokenizer, decoder
 

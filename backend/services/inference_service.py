@@ -50,10 +50,20 @@ class InferenceService:
             
             if device is None:
                 if hardware_info["gpu"]["available"]:
-                    device = "cuda"
+                    # 再次验证 CUDA 是否真的可用
+                    if torch.cuda.is_available():
+                        device = "cuda"
+                        logger.info(f"[OK] GPU detected: {torch.cuda.get_device_name(0)}")
+                        logger.info(f"   CUDA version: {torch.version.cuda}")
+                        logger.info(f"   GPU Memory: {torch.cuda.get_device_properties(0).total_memory / (1024**3):.2f} GB")
+                    else:
+                        logger.warning("[WARN] GPU detected in hardware info but torch.cuda.is_available() is False")
+                        device = "cpu"
+                        precision = "fp32"
                 else:
                     device = "cpu"
                     precision = "fp32"  # CPU 不支持 FP16
+                    logger.info("[INFO] No GPU detected, using CPU")
             
             # 根据硬件调整精度
             if device == "cpu":
@@ -83,7 +93,15 @@ class InferenceService:
             elif device == "cpu":
                 precision = "fp32"  # CPU 必须使用 FP32
             
-            logger.info(f"Model prepared on {device} with {precision}")
+            # 验证模型实际加载的设备
+            if self._loaded_model is not None:
+                actual_device = next(self._loaded_model.parameters()).device
+                logger.info(f"[OK] Model prepared on {device} with {precision}")
+                logger.info(f"   Actual device: {actual_device}")
+                if device == "cuda" and actual_device.type != "cuda":
+                    logger.warning(f"[WARN] Model is on {actual_device} but expected cuda")
+            else:
+                logger.warning("[WARN] Model is None after preparation")
             
             return {
                 "success": True,

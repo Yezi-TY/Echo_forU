@@ -9,23 +9,35 @@ import sys
 import logging
 
 # 在导入 phonemizer 之前，确保 espeak 在 PATH 中
-espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+espeak_paths = [
+    "/opt/homebrew/bin",  # macOS Homebrew
+    "/usr/local/bin",      # Linux/macOS
+    r"C:\Program Files\eSpeak NG",  # Windows 默认安装路径
+    r"C:\Program Files (x86)\eSpeak NG",  # Windows 32位安装路径
+]
 current_path = os.environ.get("PATH", "")
+path_separator = ";" if sys.platform == "win32" else ":"
 for path in espeak_paths:
-    if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
-        os.environ["PATH"] = f"{path}:{current_path}"
+    # Windows 上检查 espeak-ng.exe，Unix 上检查 espeak
+    espeak_name = "espeak-ng.exe" if sys.platform == "win32" else "espeak"
+    espeak_full_path = os.path.join(path, espeak_name)
+    if os.path.exists(espeak_full_path) and path not in current_path:
+        os.environ["PATH"] = f"{path}{path_separator}{current_path}"
         break
 
 # 设置 espeak 共享库路径（phonemizer 需要）
-espeak_lib_paths = [
-    "/opt/homebrew/lib/libespeak.dylib",
-    "/opt/homebrew/lib/libespeak.1.dylib",
-    "/usr/local/lib/libespeak.dylib",
-]
-for lib_path in espeak_lib_paths:
-    if os.path.exists(lib_path) and "PHONEMIZER_ESPEAK_LIBRARY" not in os.environ:
-        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
-        break
+if "PHONEMIZER_ESPEAK_LIBRARY" not in os.environ:
+    espeak_lib_paths = [
+        "/opt/homebrew/lib/libespeak.dylib",  # macOS Homebrew
+        "/opt/homebrew/lib/libespeak.1.dylib",  # macOS Homebrew
+        "/usr/local/lib/libespeak.dylib",  # macOS/Linux
+        r"C:\Program Files\eSpeak NG\libespeak-ng.dll",  # Windows 默认安装路径
+        r"C:\Program Files (x86)\eSpeak NG\libespeak-ng.dll",  # Windows 32位安装路径
+    ]
+    for lib_path in espeak_lib_paths:
+        if os.path.exists(lib_path):
+            os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
+            break
 
 from phonemizer.backend import EspeakBackend
 from phonemizer.separator import Separator
@@ -53,7 +65,7 @@ def _init_phonemizer_backends():
     
     # 逐个初始化，失败的语言不影响其他语言
     supported_languages = {
-        "zh": "zh",
+        "zh": "cmn",  # espeak-ng 使用 "cmn" 作为中文（Mandarin），"zh" 是 mbrola 语音可能无法加载
         "en": "en-us",
         "fr": "fr-fr",
         "de": "de",
@@ -107,7 +119,9 @@ lang2backend = {
     "de": lambda: _get_phonemizer_backend("de"),
 }
 
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "mls_en.json"), "r") as f:
+# Windows 上默认编码可能是 cp936/gbk，mls_en.json 含 IPA 字符会解码失败；
+# 这里显式用 UTF-8（兼容 UTF-8 BOM 用 utf-8-sig）
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "mls_en.json"), "r", encoding="utf-8-sig") as f:
     json_data = f.read()
 token = json.loads(json_data)
 

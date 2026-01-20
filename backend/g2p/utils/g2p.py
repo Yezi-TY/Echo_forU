@@ -90,7 +90,9 @@ lang2backend = {
     "de": lambda: _get_phonemizer_backend("de"),
 }
 
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "mls_en.json"), "r") as f:
+# Windows 上默认编码可能是 cp936/gbk，mls_en.json 含 IPA 字符会解码失败；
+# 这里显式用 UTF-8（兼容 UTF-8 BOM 用 utf-8-sig）
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "mls_en.json"), "r", encoding="utf-8-sig") as f:
     json_data = f.read()
 token = json.loads(json_data)
 

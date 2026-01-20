@@ -6,23 +6,36 @@ import logging
 from pathlib import Path
 
 # 在导入其他模块之前，确保 espeak 在 PATH 中（用于 phonemizer）
-espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+import sys
+espeak_paths = [
+    "/opt/homebrew/bin",  # macOS Homebrew
+    "/usr/local/bin",      # Linux/macOS
+    r"C:\Program Files\eSpeak NG",  # Windows 默认安装路径
+    r"C:\Program Files (x86)\eSpeak NG",  # Windows 32位安装路径
+]
 current_path = os.environ.get("PATH", "")
+path_separator = ";" if sys.platform == "win32" else ":"
 for path in espeak_paths:
-    if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
-        os.environ["PATH"] = f"{path}:{current_path}"
+    # Windows 上检查 espeak-ng.exe，Unix 上检查 espeak
+    espeak_name = "espeak-ng.exe" if sys.platform == "win32" else "espeak"
+    espeak_full_path = os.path.join(path, espeak_name)
+    if os.path.exists(espeak_full_path) and path not in current_path:
+        os.environ["PATH"] = f"{path}{path_separator}{current_path}"
         break
 
 # 设置 espeak 共享库路径（phonemizer 需要）
-espeak_lib_paths = [
-    "/opt/homebrew/lib/libespeak.dylib",
-    "/opt/homebrew/lib/libespeak.1.dylib",
-    "/usr/local/lib/libespeak.dylib",
-]
-for lib_path in espeak_lib_paths:
-    if os.path.exists(lib_path):
-        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
-        break
+if "PHONEMIZER_ESPEAK_LIBRARY" not in os.environ:
+    espeak_lib_paths = [
+        "/opt/homebrew/lib/libespeak.dylib",  # macOS Homebrew
+        "/opt/homebrew/lib/libespeak.1.dylib",  # macOS Homebrew
+        "/usr/local/lib/libespeak.dylib",  # macOS/Linux
+        r"C:\Program Files\eSpeak NG\libespeak-ng.dll",  # Windows 默认安装路径
+        r"C:\Program Files (x86)\eSpeak NG\libespeak-ng.dll",  # Windows 32位安装路径
+    ]
+    for lib_path in espeak_lib_paths:
+        if os.path.exists(lib_path):
+            os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = lib_path
+            break
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

@@ -5,8 +5,11 @@ websockets==12.0
 python-multipart==0.0.6
 
 # DiffRhythm2 dependencies (from example/DiffRhythm2/requirements.txt)
-torch>=2.0.0,<3.0.0
-torchaudio>=2.0.0,<3.0.0
+# PyTorch with CUDA 13.0 support - 需要单独安装，不能通过 requirements.txt 指定 index-url
+# 安装命令：
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
+# torch>=2.0.0,<3.0.0
+# torchaudio>=2.0.0,<3.0.0
 torchdiffeq==0.2.5
 transformers==4.47.1
 cn2an==0.5.23

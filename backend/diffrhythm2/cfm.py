@@ -86,10 +86,14 @@ class CFM(nn.Module):
         device = self.device
         num_blocks = duration // self.block_size + (duration % self.block_size > 0)
 
+        # 确保时间张量的 dtype 与模型参数一致（提前获取，避免重复计算）
+        model_dtype = next(self.transformer.parameters()).dtype
+        
         text_emb = self.transformer.text_embed(text)
         cfg_text_emb = self.transformer.text_embed(torch.zeros_like(text))
         text_lens = torch.LongTensor([text_emb.shape[1]]).to(device)
-        clean_emb_stream = torch.zeros(batch, 0, self.num_channels, device=device, dtype=text_emb.dtype)
+        # 确保 clean_emb_stream 使用模型 dtype
+        clean_emb_stream = torch.zeros(batch, 0, self.num_channels, device=device, dtype=model_dtype)
         noisy_lens = torch.LongTensor([self.block_size]).to(device)
         block_iterator = range(num_blocks)
         if process_bar:
@@ -98,11 +102,14 @@ class CFM(nn.Module):
         # create cache
         kv_cache = BlockFlowMatchingCache(text_lengths=text_lens, num_history_block=self.num_history_block)
         cfg_kv_cache = BlockFlowMatchingCache(text_lengths=text_lens, num_history_block=self.num_history_block)
-        # 确保时间张量的 dtype 与模型参数一致
-        model_dtype = next(self.transformer.parameters()).dtype
+        # 确保时间张量的 dtype 与模型参数一致（model_dtype 已在上面获取）
         cache_time = torch.tensor([1], device=device, dtype=model_dtype)[:, None].repeat(batch, self.block_size)
         
         # generate text cache
+        # 确保 style_prompt 使用正确的 dtype（在循环外统一处理）
+        if style_prompt.dtype != model_dtype:
+            style_prompt = style_prompt.to(dtype=model_dtype)
+        
         text_time = torch.tensor([-1], device=device, dtype=model_dtype)[:, None].repeat(batch, text_emb.shape[1])
         text_position_ids = torch.arange(0, text_emb.shape[1], device=device)[None, :].repeat(batch, 1)
         text_attn_mask = torch.ones(batch, 1, text_emb.shape[1], text_emb.shape[1], device=device).bool()
@@ -143,11 +150,15 @@ class CFM(nn.Module):
 
             # core sample fn
             def fn(t, x):
+                # 确保 x 的 dtype 与模型一致（防止类型不匹配）
+                if x.dtype != model_dtype:
+                    x = x.to(dtype=model_dtype)
                 noisy_embed = self.transformer.latent_embed(x)
 
                 if t.ndim == 0:
                     t = t.repeat(batch)
-                time = t[:, None].repeat(1, noisy_lens.max())
+                # 确保 time 的 dtype 与模型一致
+                time = t[:, None].repeat(1, noisy_lens.max()).to(dtype=model_dtype)
 
                 pred, *_ = self.transformer(
                     x=noisy_embed, 
@@ -174,9 +185,11 @@ class CFM(nn.Module):
                 return pred + (pred - null_pred) * cfg_strength
 
             # generate time
-            noisy_emb = torch.randn(batch, self.block_size, self.num_channels, device=device, dtype=style_prompt.dtype)
+            # 确保 noisy_emb 使用模型 dtype（style_prompt 已在循环外统一处理）
+            # model_dtype 已在函数开始时获取
+            noisy_emb = torch.randn(batch, self.block_size, self.num_channels, device=device, dtype=model_dtype)
             t_start = 0
-            t_set = torch.linspace(t_start, 1, steps, device=device, dtype=noisy_emb.dtype)
+            t_set = torch.linspace(t_start, 1, steps, device=device, dtype=model_dtype)
             
             # sampling
             outputs = odeint(fn, noisy_emb, t_set, **self.odeint_kwargs)

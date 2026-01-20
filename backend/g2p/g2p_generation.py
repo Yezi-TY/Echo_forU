@@ -115,7 +115,9 @@ def chn_eng_g2p(text: str):
 
 vocab_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "g2p/vocab.json")
 text_tokenizer = PhonemeBpeTokenizer(vacab_path=vocab_path)
-with open(vocab_path, "r") as f:
+# Windows 上默认编码可能是 cp936/gbk，vocab.json 含 IPA 字符会解码失败；
+# 这里显式用 UTF-8（兼容 UTF-8 BOM 用 utf-8-sig）
+with open(vocab_path, "r", encoding="utf-8-sig") as f:
     json_data = f.read()
 data = json.loads(json_data)
 vocab = data["vocab"]

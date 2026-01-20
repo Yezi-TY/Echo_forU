@@ -15,7 +15,7 @@ LangSegment = LS()
 class PhonemeBpeTokenizer:
     def __init__(self, vacab_path="./f5_tts/g2p/g2p/vocab.json"):
         self.lang2backend = {
-            "zh": "zh",  # espeak 使用 "zh" 而不是 "cmn"
+            "zh": "cmn",  # espeak-ng 使用 "cmn" 作为中文（Mandarin），"zh" 是 mbrola 语音可能无法加载
             "ja": "ja",
             "en": "en-us",
             "fr": "fr-fr",
@@ -25,7 +25,9 @@ class PhonemeBpeTokenizer:
         self.text_tokenizers = {}
         self.int_text_tokenizers()
 
-        with open(vacab_path, "r") as f:
+        # Windows 上默认编码可能是 cp936/gbk，vocab.json 含 IPA 字符会解码失败；
+        # 这里显式用 UTF-8（兼容 UTF-8 BOM 用 utf-8-sig）
+        with open(vacab_path, "r", encoding="utf-8-sig") as f:
             json_data = f.read()
         data = json.loads(json_data)
         self.vocab = data["vocab"]
@@ -35,12 +37,41 @@ class PhonemeBpeTokenizer:
         """延迟初始化 text tokenizers，只在需要时创建"""
         # 确保 espeak 在 PATH 中
         import os
-        espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+        import sys
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        espeak_paths = [
+            "/opt/homebrew/bin",  # macOS Homebrew
+            "/usr/local/bin",      # Linux/macOS
+            r"C:\Program Files\eSpeak NG",  # Windows 默认安装路径
+            r"C:\Program Files (x86)\eSpeak NG",  # Windows 32位安装路径
+        ]
         current_path = os.environ.get("PATH", "")
+        path_separator = ";" if sys.platform == "win32" else ":"
+        espeak_found = False
         for path in espeak_paths:
-            if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
-                os.environ["PATH"] = f"{path}:{current_path}"
+            # Windows 上检查 espeak-ng.exe，Unix 上检查 espeak
+            espeak_name = "espeak-ng.exe" if sys.platform == "win32" else "espeak"
+            espeak_full_path = os.path.join(path, espeak_name)
+            if os.path.exists(espeak_full_path):
+                if path not in current_path:
+                    os.environ["PATH"] = f"{path}{path_separator}{current_path}"
+                    logger.info(f"Added espeak path to PATH: {path}")
+                # Windows 上，phonemizer 需要 DLL 库文件，而不是 exe
+                if sys.platform == "win32":
+                    # 设置 PHONEMIZER_ESPEAK_LIBRARY 指向 DLL
+                    dll_path = os.path.join(path, "libespeak-ng.dll")
+                    if os.path.exists(dll_path):
+                        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = dll_path
+                        logger.info(f"Set PHONEMIZER_ESPEAK_LIBRARY: {dll_path}")
+                    else:
+                        logger.warning(f"libespeak-ng.dll not found at {dll_path}")
+                espeak_found = True
                 break
+        
+        if not espeak_found and sys.platform == "win32":
+            logger.warning("espeak-ng not found in standard paths. Please ensure espeak-ng is installed.")
         
         for key, value in self.lang2backend.items():
             # 日语和韩语不使用 espeak，使用自己的处理逻辑
@@ -95,11 +126,21 @@ class PhonemeBpeTokenizer:
         
         # 确保 espeak 在 PATH 中
         import os
-        espeak_paths = ["/opt/homebrew/bin", "/usr/local/bin"]
+        import sys
+        espeak_paths = [
+            "/opt/homebrew/bin",  # macOS Homebrew
+            "/usr/local/bin",      # Linux/macOS
+            r"C:\Program Files\eSpeak NG",  # Windows 默认安装路径
+            r"C:\Program Files (x86)\eSpeak NG",  # Windows 32位安装路径
+        ]
         current_path = os.environ.get("PATH", "")
+        path_separator = ";" if sys.platform == "win32" else ":"
         for path in espeak_paths:
-            if os.path.exists(os.path.join(path, "espeak")) and path not in current_path:
-                os.environ["PATH"] = f"{path}:{current_path}"
+            # Windows 上检查 espeak-ng.exe，Unix 上检查 espeak
+            espeak_name = "espeak-ng.exe" if sys.platform == "win32" else "espeak"
+            espeak_full_path = os.path.join(path, espeak_name)
+            if os.path.exists(espeak_full_path) and path not in current_path:
+                os.environ["PATH"] = f"{path}{path_separator}{current_path}"
                 break
         
         tokenizer = self.text_tokenizers.get(language)
